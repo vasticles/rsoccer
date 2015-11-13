@@ -233,6 +233,12 @@ public class MainActivity extends ActionBarActivity {
             if (threadValues != null) {
                 ThreadEntryAdapter adapter = new ThreadEntryAdapter(MainActivity.this, -1, threadValues);
                 threadList.setAdapter(adapter);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.setTitle("/r/"+subreddit);
+                    }
+                });
             } else {
                 //if the array came in null, show a toast notifying the user
                 runOnUiThread(new Runnable() {
