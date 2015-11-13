@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">/r/soccer</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="refresh">Refresh</string>
+    <string name="new_subreddit">New Subreddit</string>
 
 </resources>

@@ -1,5 +1,7 @@
 package vas.coupgon.rsoccer;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -10,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -32,6 +35,7 @@ public class MainActivity extends ActionBarActivity {
     private static ListView threadList; //Le listview to show our reddit threads
     private static final String PREFIX = "http://www.reddit.com/r/"; //reddit url
     private static final String SUFFIX = ".json"; //secret reddit api accessor
+    private String subreddit = "soccer"; //this holds the name of subreddit we will be viewing
     private String errorMessage; //we'll use this field to store the halting error, which we will later display in a toast
 
 
@@ -47,7 +51,7 @@ public class MainActivity extends ActionBarActivity {
 
         //The task to pretty much do everything we need
         ConnectToSubredditAndGetThreadsListingsTask task = new ConnectToSubredditAndGetThreadsListingsTask();
-        task.execute(PREFIX+"soccer"+SUFFIX);
+        task.execute(PREFIX+subreddit+SUFFIX);
     }
 
     @Override
@@ -64,10 +68,38 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        //Refresh current subreddit listing
+        if (id == R.id.refresh) {
+            ConnectToSubredditAndGetThreadsListingsTask task = new ConnectToSubredditAndGetThreadsListingsTask();
+            task.execute(PREFIX+subreddit+SUFFIX);
             return true;
         }
 
+        //Enter a new subreddit to view
+        if (id == R.id.newSubreddit) {
+            final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            dialogBuilder.setTitle("New Subreddit");
+            dialogBuilder.setMessage("Enter name of subreddit (eg. if \"/r/soccer\" enter \"soccer\")");
+            final EditText input = new EditText(this);
+            dialogBuilder.setView(input);
+            dialogBuilder.setPositiveButton("Show", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    subreddit = input.getText().toString().toLowerCase();
+                    ConnectToSubredditAndGetThreadsListingsTask task = new ConnectToSubredditAndGetThreadsListingsTask();
+                    task.execute(PREFIX+subreddit+SUFFIX);
+                }
+            });
+            dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.cancel();
+                }
+            });
+            AlertDialog dialog = dialogBuilder.create();
+            dialog.show();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
