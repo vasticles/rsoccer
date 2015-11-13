@@ -173,8 +173,8 @@ public class MainActivity extends ActionBarActivity {
 
                         //Since reddit provides a url to the thumbnail, we need to connect to the url and create a drawable from the inputstream
                         //Better do it in the same asynctask to avoid unnecessary overhead
-                        if (thumbUrl != null || thumbUrl.length() > 0) {
-                            InputStream is = null;
+                        if (thumbUrl != null && thumbUrl.length() > 0) {
+                            InputStream is;
                             try {
                                 is = (InputStream) new URL(thumbUrl).getContent();
                                 thumbnail = Drawable.createFromStream(is, null);
