@@ -35,7 +35,7 @@ public class MainActivity extends ActionBarActivity {
     private static ListView threadList; //Le listview to show our reddit threads
     private static final String PREFIX = "http://www.reddit.com/r/"; //reddit url
     private static final String SUFFIX = ".json"; //secret reddit api accessor
-    private String subreddit = "soccer"; //this holds the name of subreddit we will be viewing
+    private String subTitle = "soccer"; //this holds the name of sub we will be viewing
     private String errorMessage; //we'll use this field to store the halting error, which we will later display in a toast
 
 
@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity {
 
         //The task to pretty much do everything we need
         ConnectToSubredditAndGetThreadsListingsTask task = new ConnectToSubredditAndGetThreadsListingsTask();
-        task.execute(PREFIX+subreddit+SUFFIX);
+        task.execute(subTitle);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class MainActivity extends ActionBarActivity {
         //Refresh current subreddit listing
         if (id == R.id.refresh) {
             ConnectToSubredditAndGetThreadsListingsTask task = new ConnectToSubredditAndGetThreadsListingsTask();
-            task.execute(PREFIX+subreddit+SUFFIX);
+            task.execute(subTitle);
             return true;
         }
 
@@ -85,9 +85,9 @@ public class MainActivity extends ActionBarActivity {
             dialogBuilder.setPositiveButton("Show", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    subreddit = input.getText().toString().toLowerCase();
+                    String sub = input.getText().toString().toLowerCase();
                     ConnectToSubredditAndGetThreadsListingsTask task = new ConnectToSubredditAndGetThreadsListingsTask();
-                    task.execute(PREFIX+subreddit+SUFFIX);
+                    task.execute(sub);
                 }
             });
             dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -128,16 +128,20 @@ public class MainActivity extends ActionBarActivity {
     //populate the array with the data, and finally pass the data to the adapter and listview
     private class ConnectToSubredditAndGetThreadsListingsTask extends AsyncTask<String, Void, ThreadValues[]> {
 
+        private String subreddit = getTitle().toString();
+
         public ConnectToSubredditAndGetThreadsListingsTask() {}
 
         @Override
-        protected ThreadValues[] doInBackground(String... url) {
+        protected ThreadValues[] doInBackground(String... sub) {
+            subreddit = sub[0];
+            String urlString = PREFIX+subreddit+SUFFIX;
             URL redditUrl;
             String jsonResponse = null;
 
             //Create a url object from the passed string
             try {
-                redditUrl = new URL(url[0]);
+                redditUrl = new URL(urlString);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
                 errorMessage = "Not a proper URL."; //this will never happen since the prefix is already a valid url, but just to cover all bases.
@@ -223,6 +227,9 @@ public class MainActivity extends ActionBarActivity {
                     //we will check the length of the array to determine that and update the error message accordingly
                     if (threadValues.length <= 0) {
                         errorMessage = "Looks like the subreddit doesn't exist.";
+                    } else {
+                        //otherwise, update the title to the processed sub
+                        subTitle = subreddit;
                     }
                     return threadValues;
                 } catch (JSONException e) {
@@ -242,7 +249,7 @@ public class MainActivity extends ActionBarActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MainActivity.this.setTitle("/r/"+subreddit);
+                        MainActivity.this.setTitle("/r/"+ subTitle);
                     }
                 });
             } else {
