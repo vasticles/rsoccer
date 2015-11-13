@@ -218,6 +218,12 @@ public class MainActivity extends ActionBarActivity {
                         //Now that we have all the data, create a ThreadValues object and add it to array
                         threadValues[i] = new ThreadValues(thumbnail, title, author, date);
                     }
+
+                    //Since reddit will still return some sort of json even if the sub doesn't exist,
+                    //we will check the length of the array to determine that and update the error message accordingly
+                    if (threadValues.length <= 0) {
+                        errorMessage = "Looks like the subreddit doesn't exist.";
+                    }
                     return threadValues;
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -230,7 +236,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(ThreadValues[] threadValues) {
             //finally take the array of thread values, create an adapter and feed it to our listview
-            if (threadValues != null) {
+            if (threadValues != null && threadValues.length > 0) {
                 ThreadEntryAdapter adapter = new ThreadEntryAdapter(MainActivity.this, -1, threadValues);
                 threadList.setAdapter(adapter);
                 runOnUiThread(new Runnable() {
